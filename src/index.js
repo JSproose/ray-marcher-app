@@ -4,6 +4,13 @@ import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 
+
+// https://github.com/gsimone/r3f-raymarching
+
+
+// https://blog.maximeheckel.com/posts/the-study-of-shaders-with-react-three-fiber/
+
+
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
