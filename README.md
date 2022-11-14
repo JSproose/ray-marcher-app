@@ -1,4 +1,4 @@
-# Realtime Raymarching Web App
+# Realtime Raymarching Web App: https://jsproose.github.io/ray-marcher-app/
 
 A web application powered by WebGL and React that allows users to generate and download mesmorizing artwork for their desktop background using a realtime raymarching engine.
 
@@ -20,16 +20,22 @@ The user can toggle the visibility of an animated mandelbulb, a 3D representatio
 
 ![mandelbulb-gif5](https://user-images.githubusercontent.com/81532989/201610509-116bcb78-e317-4b11-bfa9-4234805f27fc.gif)
 
-
-
 ### Pausing
+The user can pause the mandelbulb animation on their desired frame with the </b>pause/play button</b>.
+
 
 ### Shuffle
+The user can randomize the position of the background objects by clicking the <b>shuffle button</b>.
 
 
-### Matcaps
-The user can choose from a range of materials 
+### Save
+The user can save the entire canvas as a jpeg by clicking the <b>save button</b>.
 
 ## Credits
+
+* Signed distance functions sourced from Inigo Quilez's website: https://iquilezles.org/articles/raymarchingdf/ 
+* Distance estimator function sourced from: https://www.shadertoy.com/view/wdjGWR
+* Inspired by Coding Adventure: Ray Marching by Sebastian Lague: https://www.youtube.com/watch?v=Cp5WWtMoeKg
+
 
 
