@@ -12,10 +12,15 @@ Ray marching is a category of real time graphics rendering methods. The method d
 
 ### Matcaps
 The user can choose from a range of materials to assign the objects in the scene, from a psychedelic mix of blues and purples to a shimmering gold. 
+
 ![matcapsGif](https://user-images.githubusercontent.com/81532989/201606638-5f9acf34-c123-416c-9652-4664430edba7.gif)
 
 ### Mandelbulb
-The user can toggle the visibility of an animated mandelbulb, a 3D representation of a mandelbrot set created for the first time by Jules Ruis in 1997.  
+The user can toggle the visibility of an animated mandelbulb, a 3D representation of a mandelbrot set created for the first time by Jules Ruis in 1997.
+
+![mandelbulb-gif5](https://user-images.githubusercontent.com/81532989/201610509-116bcb78-e317-4b11-bfa9-4234805f27fc.gif)
+
+
 
 ### Pausing
 
