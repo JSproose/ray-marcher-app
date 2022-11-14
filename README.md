@@ -6,7 +6,9 @@ A web application powered by WebGL and React that allows users to generate and d
 
 Ray marching is a category of real time graphics rendering methods. The method displayed by the below figure and used in this web application is a type of ray marching called <b>sphere tracing</b>. Sphere tracing casts a ray from the camera, then iteratively calculates the distance from the current position along the ray to all implicit surfaces until that distance is below a certain threshold or a maximum number of iterations has been exceeded. Once this occurs, the measured ray is used to define the normal to the surface, which can be used to calculate lighting conditions and colour. Multiple objects may lie on the path of a ray, so the ray marching function takes the minimum of the distances to the two objects (calculated by <b>signed distance functions</b>) to display the one in front. However, the two surfaces can and are blended together in my application by taking a smooth minimum between the two distances.  
 
-![image](https://user-images.githubusercontent.com/81532989/201599763-9d0236ca-1653-4eb1-ab59-80971a5b6096.png)
+<p align="center">
+  <img src="https://adrianb.io/img/2016-10-01-raymarching/figure3.png" />
+</p>
 
 ## Features
 
