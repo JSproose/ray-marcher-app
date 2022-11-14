@@ -23,13 +23,19 @@ The user can toggle the visibility of an animated mandelbulb, a 3D representatio
 ### Pausing
 The user can pause the mandelbulb animation on their desired frame with the </b>pause/play button</b>.
 
+![pause-gif](https://user-images.githubusercontent.com/81532989/201613940-b4b515c5-0d40-4541-9717-f5513fac18c6.gif)
+
 
 ### Shuffle
 The user can randomize the position of the background objects by clicking the <b>shuffle button</b>.
 
+![shuffle-gif](https://user-images.githubusercontent.com/81532989/201614167-019d2ba3-1afc-4fa5-b043-961696d0b033.gif)
+
 
 ### Save
 The user can save the entire canvas as a jpeg by clicking the <b>save button</b>.
+
+![save-gif](https://user-images.githubusercontent.com/81532989/201613351-89550c24-ac3e-4532-9a6d-7890b190c5db.gif)
 
 ## Credits
 
