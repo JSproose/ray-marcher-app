@@ -1,6 +1,6 @@
-# Realtime Raymarching Web App: https://jsproose.github.io/ray-marcher-app/
+# Realtime Ray Marching Web App: https://jsproose.github.io/ray-marcher-app/
 
-A web application powered by WebGL and React that allows users to generate and download mesmorizing artwork for their desktop background using a realtime raymarching engine.
+A web application powered by WebGL and React that allows users to generate and download mesmorizing artwork for their desktop background using a realtime ray marching engine.
 
 ## What is ray marching?
 
