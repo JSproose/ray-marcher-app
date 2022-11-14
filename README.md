@@ -1,9 +1,9 @@
 # Realtime Raymarching Web App
 
-##What is raymarching?
+## What is raymarching?
 
-##Features
+## Features
 
-##Credits
+## Credits
 
 
