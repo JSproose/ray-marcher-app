@@ -1,98 +1,305 @@
 const fragmentShader = `
-uniform float u_time;
+#define MAX_STEPS 100
+#define MAX_DIST 100.
+#define SURF_DIST .01
+#define MANDELBULB_POWER 8.
 
-uniform vec3 u_bg;
-uniform vec3 u_colorA;
-uniform vec3 u_colorB;
-uniform vec2 u_mouse;
+
 
 varying vec2 vUv;
+uniform vec2 u_mouse;
+uniform vec2 u_resolution;
+uniform float u_time;
+uniform int u_data_size;
+uniform sampler2D u_matcap;
+uniform bool u_mandelbulb;
 
-//
-// Description : Array and textureless GLSL 2D simplex noise function.
-//      Author : Ian McEwan, Ashima Arts.
-//  Maintainer : ijm
-//     Lastmod : 20110822 (ijm)
-//     License : Copyright (C) 2011 Ashima Arts. All rights reserved.
-//               Distributed under the MIT License. See LICENSE file.
-//               https://github.com/ashima/webgl-noise
-//
+struct Data {
+	vec2 position;
+	vec2 rotation;
+  int shape;
+};
 
-// https://github.com/hughsk/glsl-noise/blob/master/simplex/2d.glsl
+// Add random size of array later
+uniform Data u_data[10];
 
-vec3 mod289(vec3 x) {
-  return x - floor(x * (1.0 / 289.0)) * 289.0;
+
+float sphereSDF(vec3 p, float r) {
+  //Position and radius of sphere    
+  float sphereDist =  length(p)-r;
+  return sphereDist;
 }
 
-vec2 mod289(vec2 x) {
-  return x - floor(x * (1.0 / 289.0)) * 289.0;
+
+float sdBoxFrame( vec3 p, vec3 b, float e )
+{
+       p = abs(p  )-b;
+  vec3 q = abs(p+e)-e;
+  return min(min(
+      length(max(vec3(p.x,q.y,q.z),0.0))+min(max(p.x,max(q.y,q.z)),0.0),
+      length(max(vec3(q.x,p.y,q.z),0.0))+min(max(q.x,max(p.y,q.z)),0.0)),
+      length(max(vec3(q.x,q.y,p.z),0.0))+min(max(q.x,max(q.y,p.z)),0.0));
 }
 
-vec3 permute(vec3 x) {
-  return mod289(((x*34.0)+1.0)*x);
+
+float DE(vec3 z)
+{
+  int Iterations = 12;
+  float Scale = 2.;
+	vec3 a1 = vec3(1,1,1);
+	vec3 a2 = vec3(-1,-1,1);
+	vec3 a3 = vec3(1,-1,-1);
+	vec3 a4 = vec3(-1,1,-1);
+	vec3 c;
+	int n = 0;
+	float dist, d;
+	while (n < Iterations) {
+		 c = a1; dist = length(z-a1);
+	        d = length(z-a2); if (d < dist) { c = a2; dist=d; }
+		 d = length(z-a3); if (d < dist) { c = a3; dist=d; }
+		 d = length(z-a4); if (d < dist) { c = a4; dist=d; }
+		z = Scale*z-c*(Scale-1.0);
+		n++;
+	}
+
+	return length(z) * pow(Scale, float(-n));
 }
 
-float snoise(vec2 v)
-  {
-  const vec4 C = vec4(0.211324865405187,  // (3.0-sqrt(3.0))/6.0
-                      0.366025403784439,  // 0.5*(sqrt(3.0)-1.0)
-                     -0.577350269189626,  // -1.0 + 2.0 * C.x
-                      0.024390243902439); // 1.0 / 41.0
-// First corner
-  vec2 i  = floor(v + dot(v, C.yy) );
-  vec2 x0 = v -   i + dot(i, C.xx);
 
-// Other corners
-  vec2 i1;
-  //i1.x = step( x0.y, x0.x ); // x0.x > x0.y ? 1.0 : 0.0
-  //i1.y = 1.0 - i1.x;
-  i1 = (x0.x > x0.y) ? vec2(1.0, 0.0) : vec2(0.0, 1.0);
-  // x0 = x0 - 0.0 + 0.0 * C.xx ;
-  // x1 = x0 - i1 + 1.0 * C.xx ;
-  // x2 = x0 - 1.0 + 2.0 * C.xx ;
-  vec4 x12 = x0.xyxy + C.xxzz;
-  x12.xy -= i1;
-
-// Permutations
-  i = mod289(i); // Avoid truncation effects in permutation
-  vec3 p = permute( permute( i.y + vec3(0.0, i1.y, 1.0 ))
-    + i.x + vec3(0.0, i1.x, 1.0 ));
-
-  vec3 m = max(0.5 - vec3(dot(x0,x0), dot(x12.xy,x12.xy), dot(x12.zw,x12.zw)), 0.0);
-  m = m*m ;
-  m = m*m ;
-
-// Gradients: 41 points uniformly over a line, mapped onto a diamond.
-// The ring size 17*17 = 289 is close to a multiple of 41 (41*7 = 287)
-
-  vec3 x = 2.0 * fract(p * C.www) - 1.0;
-  vec3 h = abs(x) - 0.5;
-  vec3 ox = floor(x + 0.5);
-  vec3 a0 = x - ox;
-
-// Normalise gradients implicitly by scaling m
-// Approximation of: m *= inversesqrt( a0*a0 + h*h );
-  m *= 1.79284291400159 - 0.85373472095314 * ( a0*a0 + h*h );
-
-// Compute final noise value at P
-  vec3 g;
-  g.x  = a0.x  * x0.x  + h.x  * x0.y;
-  g.yz = a0.yz * x12.xz + h.yz * x12.yw;
-  return 130.0 * dot(m, g);
-}
-// End of Simplex Noise Code
-
-
-void main() {
-  vec3 color = u_bg;
-
-  float noise1 = snoise(vUv + u_time * (sin(u_mouse.x * 0.001) + 0.2));
-  float noise2 = snoise(vUv + u_time * (sin(u_mouse.y * 0.001) + 0.2));
-
-  color = mix(color, u_colorA, noise1);
-  color = mix(color, u_colorB, noise2);
+float sdCutHollowSphere( vec3 p, float r, float h, float t )
+{
+  // sampling independent computations (only depend on shape)
+  float w = sqrt(r*r-h*h);
   
-  gl_FragColor = vec4(color ,1.0);
+  // sampling dependant computations
+  vec2 q = vec2( length(p.xz), p.y );
+  return ((h*q.x<w*q.y) ? length(q-vec2(w,h)) : 
+  abs(length(q)-r) ) - t;
+}
+
+float sdLink( vec3 p, float le, float r1, float r2 )
+{
+  vec3 q = vec3( p.x, max(abs(p.y)-le,0.0), p.z );
+  return length(vec2(length(q.xy)-r1,q.z)) - r2;
+}
+
+float sdBox( vec3 p, vec3 b )
+{
+  vec3 q = abs(p) - b;
+  return length(max(q,0.0)) + min(max(q.x,max(q.y,q.z)),0.0);
+}
+
+float sdRoundBox( vec3 p, vec3 b, float r )
+{
+  vec3 q = abs(p) - b;
+  return length(max(q,0.0)) + min(max(q.x,max(q.y,q.z)),0.0) - r;
+}
+
+float DEM(vec3 pos) {
+  int Iterations = 8;
+  float Bailout = 1.15;
+  float Power = 1. + (MANDELBULB_POWER-1.)*(0.5 - cos(u_time*radians(360.)/73.)*0.5);
+	vec3 z = pos;
+	float dr = 1.0;
+	float r = 0.0;
+	for (int i = 0; i < Iterations ; i++) {
+		r = length(z);
+		if (r>Bailout) break;
+		
+		// convert to polar coordinates
+		float theta = acos(z.z/r);
+		float phi = atan(z.y,z.x);
+		dr =  pow( r, Power-1.0)*Power*dr + 1.0;
+		
+		// scale and rotate the point
+		float zr = pow( r,Power);
+		theta = theta*Power;
+		phi = phi*Power;
+		
+		// convert back to cartesian coordinates
+		z = zr*vec3(sin(theta)*cos(phi), sin(phi)*sin(theta), cos(theta));
+		z+=pos;
+	}
+	return 0.5*log(r)*r/dr;
+}
+
+
+float smin( float a, float b, float k )
+{
+    float h = clamp( 0.5+0.5*(b-a)/k, 0.0, 1.0 );
+    return mix( b, a, h ) - k*h*(1.0-h);
+}
+
+mat4 rotateY(float theta) {
+  float c = cos(theta);
+  float s = sin(theta);
+
+  return mat4(
+      vec4(c, 0, s, 0),
+      vec4(0, 1, 0, 0),
+      vec4(-s, 0, c, 0),
+      vec4(0, 0, 0, 1)
+  );
+}
+
+mat4 rotateX(float theta) {
+  float c = cos(theta);
+  float s = sin(theta);
+
+  return mat4(
+      vec4(1, 0, 0, 0),
+      vec4(0, c, s, 0),
+      vec4(0, -s, c, 0),
+      vec4(0, 0, 0, 1)
+  );
+}
+
+mat4 rotateZ(float theta) {
+  float c = cos(theta);
+  float s = sin(theta);
+
+  return mat4(
+      vec4(c, -s, 0, 0),
+      vec4(s, c, 0, 0),
+      vec4(0, 0, 1, 0),
+      vec4(0, 0, 0, 1)
+  );
+}
+
+
+vec3 rotate(vec3 p, vec3 rotation) {
+
+  vec3 tp = (rotateY(rotation.y) * vec4(p, 1.0)).xyz;
+  tp = (rotateX(rotation.x) * vec4(tp, 1.0)).xyz;
+  tp = (rotateZ(rotation.z) * vec4(tp, 1.0)).xyz;
+
+  return tp;
+}
+
+vec3 translate(vec3 p, vec3 translation) {
+  vec3 tp = p - translation;
+
+  return tp;
+}
+
+float randomShapeGenerator(vec3 p, int i) {
+  // int rng = int(123.12 + vUv.y * 30.1789) / 10 * 10;
+  
+
+  float result;
+  switch(u_data[i].shape) {
+    case 0:
+      result = sdBoxFrame(rotate(translate(p, vec3(u_data[i].position, 5.)), vec3(u_data[i].rotation, 0.)), vec3(0.5,0.5,1), .05);
+      // result = sdBox(rotate(translate(p, vec3(u_data[i].position, 0.)), vec3(u_data[i].rotation, 0.)), vec3(0.7));
+      break;
+    case 1:
+      result = sphereSDF(rotate(translate(p, vec3(u_data[i].position, 5.)), vec3(u_data[i].rotation, 0.)), 1.0);
+      break;
+    case 2:
+      result = sdCutHollowSphere(rotate(translate(p, vec3(u_data[i].position, -5.)), vec3(u_data[i].rotation, 0.)), .5, .5, .5);
+      break;
+    case 3:
+      result = sdLink(rotate(translate(p, vec3(u_data[i].position, 5.)), vec3(u_data[i].rotation, 0.)), 0.5, 0.5, 0.2);
+      break;
+    case 4:
+      result = sdRoundBox(rotate(translate(p, vec3(u_data[i].position, 5.)), vec3(u_data[i].rotation, 0.)), vec3(0.25,0.25,0.5), 0.5);
+      break;
+  }
+
+  return result;
+}
+
+
+
+float SDF(vec3 p) {
+  float resultDist = 999.;
+
+  float result2 = DEM(rotate(translate(p, vec3(0,1., 1.)), vec3(1,1,0)));
+  for (int i = 0; i < u_data_size; i++) {
+    float currDist = randomShapeGenerator(p, i);
+    resultDist = smin(resultDist, currDist, 0.6);
+  }
+
+
+  if (u_mandelbulb) {
+    return min(result2, resultDist);
+  }
+
+  return resultDist;
+
+}
+
+// https://iquilezles.org/articles/palettes/
+vec3 GetColor(float amount) {
+  vec3 col = 0.5 + 0.5 * cos(6.28319 * (vec3(1., 1., 1.) + amount * vec3(0., .33, 0.67)));
+  return col * amount;
+}
+
+
+vec2 matcap(vec3 eye, vec3 normal) {
+  vec3 reflected = reflect(eye, normal);
+  float m = 2.8284271247461903 * sqrt( reflected.z + 20. );
+  return reflected.xy / m + 0.5;
+}
+
+float RayMarch(vec3 ro, vec3 rd) {
+    float dO=0.;
+    
+    for(int i=0; i<MAX_STEPS; i++) {
+        vec3 p = ro + rd*dO;
+        float dS = SDF(p);
+        dO += dS;
+        if(dO>MAX_DIST || dS < SURF_DIST) break;
+    }
+    
+    return dO;
+}
+
+vec3 GetNormal(vec3 p) {
+    float d = SDF(p);
+    vec2 e = vec2(.01, 0);
+    
+    vec3 n = d - vec3(
+        SDF(p-e.xyy),
+        SDF(p-e.yxy),
+        SDF(p-e.yyx));
+    
+    return normalize(n);
+}
+
+float GetLight(vec3 p) {
+    vec3 lightPos = vec3(0, 5, 6);
+    // lightPos.xz += vec2(sin(u_time), cos(u_time))*2.;
+    vec3 l = normalize(lightPos-p);
+    vec3 n = GetNormal(p);
+    float dif = clamp(dot(n, l), 0., 1.);
+
+
+    // Shadow Casting
+    // float d = RayMarch(p+n*SURF_DIST*2., l);
+    // if(d<length(lightPos-p)) dif *= .1;
+    
+    return dif;
+}
+
+
+
+void main()
+{
+    vec2 uv = vUv-0.5;    
+    vec3 ro = vec3(0, 1, -5);
+    vec3 rd = normalize(vec3(uv.x, uv.y, 1));
+
+    float d = RayMarch(ro, rd);
+    
+    vec3 p = ro + rd * d;
+    vec3 normal = GetNormal(p);
+    float dif = dot(vec3(1,1,0), normal);
+    vec2 matcapUV = matcap(p, normal);
+
+    vec3 col = texture2D(u_matcap, matcapUV).rgb;
+    // col = vec3(matcapUV, 0.1);
+    gl_FragColor = vec4(col, 1.);
 }
 
 `
