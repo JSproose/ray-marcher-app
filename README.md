@@ -1,70 +1,49 @@
-# Getting Started with Create React App
+# Realtime Ray Marching Web App: https://jsproose.github.io/Ray-Marching-App/
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+A web application powered by WebGL and React that allows users to generate and download mesmorizing artwork for their desktop background using a realtime ray marching engine.
 
-## Available Scripts
+## What is ray marching?
 
-In the project directory, you can run:
+<b>Ray marching</b> is a category of real time graphics rendering methods. The method illustrated in the figure below and used in the web app is a subtype called <b>sphere tracing</b>. Sphere tracing casts a ray from the camera, then iteratively calculates the distance from the current position along the ray to all implicit surfaces until that distance is below a certain threshold or a maximum number of iterations has been exceeded. Once this occurs, the measured ray is used to define the normal to the surface, which can be used to calculate lighting conditions and colour. Multiple objects may lie on the path of a ray, so the ray marching function takes the minimum of the distances to the two objects (calculated by <b>signed distance functions</b>) to display the one in front. However, the two surfaces can and are blended together in my application by taking a smooth minimum between the two distances.
 
-### `npm start`
+<p align="center">
+  <img src="https://adrianb.io/img/2016-10-01-raymarching/figure3.png" />
+</p>
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+## Features
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+### Matcaps
+The user can choose from a range of materials to assign the objects in the scene, from a psychedelic mix of blues and purples to a shimmering gold. 
 
-### `npm test`
+![matcapsGif](https://user-images.githubusercontent.com/81532989/201606638-5f9acf34-c123-416c-9652-4664430edba7.gif)
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+### Mandelbulb
+The user can toggle the visibility of an <b>animated mandelbulb</b>, a 3D representation of a mandelbrot set created for the first time by Jules Ruis in 1997.
 
-### `npm run build`
+![mandelbulb-gif5](https://user-images.githubusercontent.com/81532989/201610509-116bcb78-e317-4b11-bfa9-4234805f27fc.gif)
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+### Pausing
+The user can pause the mandelbulb animation on their desired frame with the </b>pause/play button</b>.
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+![pause-gif](https://user-images.githubusercontent.com/81532989/201613940-b4b515c5-0d40-4541-9717-f5513fac18c6.gif)
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
 
-### `npm run eject`
+### Shuffle
+The user can randomize the position of the background objects by clicking the <b>shuffle button</b>.
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+![shuffle-gif](https://user-images.githubusercontent.com/81532989/201614167-019d2ba3-1afc-4fa5-b043-961696d0b033.gif)
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+### Save
+The user can save the entire canvas as a JPEG by clicking the <b>save button</b>.
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+![save-gif](https://user-images.githubusercontent.com/81532989/201613351-89550c24-ac3e-4532-9a6d-7890b190c5db.gif)
 
-## Learn More
+## Credits
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+* Signed distance functions sourced from Inigo Quilez's website: https://iquilezles.org/articles/raymarchingdf/ 
+* Mandelbulb distance estimator function sourced from: https://www.shadertoy.com/view/wdjGWR
+* Inspired by Coding Adventure: Ray Marching by Sebastian Lague: https://www.youtube.com/watch?v=Cp5WWtMoeKg
 
-To learn React, check out the [React documentation](https://reactjs.org/).
 
-### Code Splitting
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
